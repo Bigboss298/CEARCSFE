@@ -3,6 +3,9 @@ export const paths = {
   register: '/register',
   adminLogin: '/admin/login',
   unauthorized: '/unauthorized',
+  faculty: '/faculty',
+  fireKiosk: '/fire-kiosk',
+  clinicKiosk: '/clinic-kiosk',
   student: {
     root: '/student',
     profile: '/student/profile',
@@ -17,5 +20,9 @@ export const paths = {
   },
   kiosk: {
     root: '/kiosk',
+    faculty: '/kiosk/faculty',
+    fire: '/kiosk/fire',
+    clinic: '/kiosk/clinic',
+    standby: '/kiosk/standby',
   },
 } as const

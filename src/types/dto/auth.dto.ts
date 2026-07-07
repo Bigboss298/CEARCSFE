@@ -5,7 +5,7 @@ export interface RegisterStudentRequest {
   fullName: string
   email: string
   phoneNumber: string
-  telegramUsername?: string
+  telegramUsername: string | null
   password: string
 }
 
@@ -40,7 +40,18 @@ export interface AdminLoginResponse {
 export interface StudentProfile {
   fullName: string
   matricNumber: string
-  email?: string
+  email: string
+  phoneNumber?: string | null
+  telegramUsername?: string | null
+  telegramChatId?: number | null
+  isTelegramLinked?: boolean
+  faculty?: string | null
+  department?: string | null
+  level?: string | null
+  id?: string
+  isActive?: boolean
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface AdminProfile {

@@ -7,19 +7,19 @@ import type {
   BroadcastAlertRequest,
   CreateAlertRequest,
   DashboardResponse,
+  DeviceTokenInfo,
   LinkTelegramRequest,
   LoginRequest,
   LoginResponse,
   MatricRecordResponse,
   MatricUploadResult,
-  MessageResponse,
   RegisterDeviceTokenRequest,
   RegisterStudentRequest,
+  StudentProfile,
 } from '@/types'
 
 export const AuthApi = {
-  register: (payload: RegisterStudentRequest) =>
-    apiClient.post<MessageResponse>('/api/auth/register', payload),
+  register: (payload: RegisterStudentRequest) => apiClient.post<void>('/api/auth/register', payload),
 
   loginStudent: (payload: LoginRequest) =>
     apiClient.post<LoginResponse>('/api/auth/login', payload),
@@ -27,8 +27,15 @@ export const AuthApi = {
   loginAdmin: (payload: AdminLoginRequest) =>
     apiClient.post<AdminLoginResponse>('/api/auth/admin/login', payload),
 
-  linkTelegram: (payload: LinkTelegramRequest) =>
-    apiClient.post<void>('/api/auth/link-telegram', payload),
+  linkTelegram: (payload: LinkTelegramRequest) => {
+    console.log('[Telegram Audit] Submitting /LinkTelegram request payload:', JSON.stringify(payload))
+    return apiClient.post<void>('/api/auth/link-telegram', payload)
+  },
+
+  getTelegramLinkUrl: () =>
+    apiClient.get<{ url: string; message?: string }>('/api/auth/telegram-link-url'),
+
+  getMe: () => apiClient.get<StudentProfile>('/api/auth/me'),
 }
 
 export const AlertApi = {
@@ -70,4 +77,6 @@ export const DeviceTokenApi = {
 
   remove: (token: string) =>
     apiClient.delete<void>(`/api/device-tokens/${encodeURIComponent(token)}`),
+
+  getMe: () => apiClient.get<DeviceTokenInfo | null>('/api/device-tokens/me'),
 }

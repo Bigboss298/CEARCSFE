@@ -6,6 +6,8 @@ import type { AlertResponse } from '@/types'
 import { AlertType } from '@/types/enums/alert-type'
 import { CAMPUS_CENTER } from '@/lib/constants'
 import { buildGoogleMapsUrl } from '@/utils/maps'
+import { getAlertStatusLabel, getAlertTypeLabel } from '@/utils/alert-theme'
+import { cn } from '@/lib/utils'
 
 const markerIcons: Record<AlertType, L.DivIcon> = {
   [AlertType.Fire]: L.divIcon({
@@ -62,7 +64,7 @@ export function AlertMap({
   height = '400px',
 }: AlertMapProps) {
   return (
-    <div className={className} style={{ height }}>
+    <div className={cn("isolate relative z-0", className)} style={{ height }}>
       <MapContainer
         center={[CAMPUS_CENTER.latitude, CAMPUS_CENTER.longitude]}
         zoom={16}
@@ -85,9 +87,9 @@ export function AlertMap({
           >
             <Popup>
               <div className="space-y-1 text-sm">
-                <p className="font-semibold">{alert.alertType}</p>
+                <p className="font-semibold">{getAlertTypeLabel(alert.alertType)}</p>
                 <p>{alert.studentFullName}</p>
-                <p>{alert.alertStatus}</p>
+                <p>{getAlertStatusLabel(alert.alertStatus)}</p>
                 <a
                   className="text-blue-600 underline"
                   href={buildGoogleMapsUrl(alert.latitude, alert.longitude)}
@@ -111,12 +113,14 @@ interface SingleAlertMapProps {
   longitude: number
   alertType: AlertType
   height?: string
+  className?: string
+  mapClassName?: string
 }
 
-export function SingleAlertMap({ latitude, longitude, alertType, height = '240px' }: SingleAlertMapProps) {
+export function SingleAlertMap({ latitude, longitude, alertType, height = '240px', className, mapClassName }: SingleAlertMapProps) {
   return (
-    <div style={{ height }}>
-      <MapContainer center={[latitude, longitude]} zoom={17} className="h-full w-full rounded-lg" scrollWheelZoom>
+    <div className={cn("isolate relative z-0", className)} style={{ height }}>
+      <MapContainer center={[latitude, longitude]} zoom={17} className={cn("h-full w-full rounded-lg", mapClassName)} scrollWheelZoom>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <Marker position={[latitude, longitude]} icon={markerIcons[alertType]} />
       </MapContainer>

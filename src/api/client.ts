@@ -33,7 +33,14 @@ apiClient.interceptors.response.use(
   (error: AxiosError) => {
     if (error.response?.status === 401) {
       clearPersistedAuth()
-      unauthorizedHandler?.()
+      const url = error.config?.url ?? ''
+      const isAuthRequest =
+        url.includes('/auth/login') ||
+        url.includes('/auth/admin/login') ||
+        url.includes('/login')
+      if (!isAuthRequest) {
+        unauthorizedHandler?.()
+      }
     }
 
     return Promise.reject(error)
@@ -41,6 +48,14 @@ apiClient.interceptors.response.use(
 )
 
 export function unwrapApiError(error: unknown): string {
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'response' in error &&
+    (error as { response?: { status?: number } }).response?.status === 401
+  ) {
+    return 'Invalid username or password.'
+  }
   return getErrorMessage(error)
 }
 

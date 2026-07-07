@@ -1,7 +1,13 @@
 import type { AlertResponse } from '@/types'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatDateTime, getAlertStatusVariant, getCountdownSeconds } from '@/utils/alert-theme'
+import {
+  formatDateTime,
+  getAlertStatusLabel,
+  getAlertStatusVariant,
+  getAlertTypeLabel,
+  getCountdownSeconds,
+} from '@/utils/alert-theme'
 import { AlertType } from '@/types/enums/alert-type'
 import { useEffect, useState } from 'react'
 import { AlertStatus } from '@/types/enums/alert-status'
@@ -45,15 +51,17 @@ export function AlertCard({ alert, onSelect }: AlertCardProps) {
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">
           <CardTitle className="text-base">{alert.studentFullName}</CardTitle>
-          <Badge variant={typeVariant}>{alert.alertType}</Badge>
+          <Badge variant={typeVariant}>{getAlertTypeLabel(alert.alertType)}</Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-2 text-sm">
         <div className="flex items-center justify-between">
-          <Badge variant={getAlertStatusVariant(alert.alertStatus)}>{alert.alertStatus}</Badge>
+          <Badge variant={getAlertStatusVariant(alert.alertStatus)}>{getAlertStatusLabel(alert.alertStatus)}</Badge>
           <span className="text-muted-foreground">{formatDateTime(alert.createdAt)}</span>
         </div>
-        <p>Confidence: {alert.confidenceScore.toFixed(1)} · Reporters: {alert.reporterCount}</p>
+        <p>
+          Confidence: {alert.confidenceScore.toFixed(1)} · Reporters: {alert.reporterCount}
+        </p>
         {countdown !== null && (
           <p className="font-medium text-amber-600">
             Escalation in {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, '0')}

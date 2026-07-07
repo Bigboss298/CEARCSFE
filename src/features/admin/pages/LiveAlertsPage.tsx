@@ -5,6 +5,7 @@ import { AlertDetailSheet } from '@/features/alerts/components/AlertDetailSheet'
 import { AlertMap } from '@/features/alerts/components/AlertMap'
 import type { AlertResponse } from '@/types'
 import { isActiveAlertStatus } from '@/types/enums/alert-status'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function LiveAlertsPage() {
   const { data: alerts = [], isLoading, error } = useAlertsQuery()
@@ -22,13 +23,26 @@ export function LiveAlertsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Live Alerts</h2>
-        <p className="text-sm text-muted-foreground">
-          {activeAlerts.length} active alert{activeAlerts.length === 1 ? '' : 's'}
+        <h2 className="text-3xl font-semibold tracking-tight">Live Alerts</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {activeAlerts.length} active alert{activeAlerts.length === 1 ? '' : 's'} currently on the feed.
         </p>
       </div>
 
-      <AlertMap alerts={activeAlerts} selectedAlertId={selectedAlert?.id} onSelectAlert={setSelectedAlert} height="420px" />
+      <Card>
+        <CardHeader>
+          <CardTitle>Alert Map</CardTitle>
+          <CardDescription>Realtime campus markers updated from the SignalR feed.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AlertMap
+            alerts={activeAlerts}
+            selectedAlertId={selectedAlert?.id}
+            onSelectAlert={setSelectedAlert}
+            height="340px"
+          />
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {activeAlerts.map((alert) => (
@@ -37,7 +51,11 @@ export function LiveAlertsPage() {
       </div>
 
       {activeAlerts.length === 0 && (
-        <p className="text-sm text-muted-foreground">No active alerts at this time.</p>
+        <Card className="border-dashed">
+          <CardContent className="py-8 text-sm text-muted-foreground">
+            No active alerts at this time.
+          </CardContent>
+        </Card>
       )}
 
       <AlertDetailSheet

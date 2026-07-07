@@ -1,16 +1,20 @@
 import { UserRole, isKioskRole } from '@/types/enums/user-role'
+import { paths } from '@/routes/paths'
 
 export function getRoleHomePath(role: UserRole): string {
   switch (role) {
     case UserRole.Student:
-      return '/student'
+      return paths.student.root
     case UserRole.Admin:
-      return '/admin'
+      return paths.admin.root
     case UserRole.Faculty:
+      return paths.faculty
     case UserRole.Kiosk:
+      return paths.faculty
     case UserRole.FireKiosk:
+      return paths.fireKiosk
     case UserRole.ClinicKiosk:
-      return '/kiosk'
+      return paths.clinicKiosk
     default:
       return '/login'
   }

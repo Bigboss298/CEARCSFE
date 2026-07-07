@@ -9,21 +9,35 @@ Create ONE React application that serves:
 •	Clinic Kiosks
 Role-based routing must determine which dashboard is displayed.
 Technology Stack:
-•	React 19
-•	TypeScript
-•	Vite
-•	Zustand
-•	React Router v7
-•	Axios
-•	SignalR Client
-•	TailwindCSS
-•	Shadcn/UI
-•	React Hook Form
-•	Zod
-•	Leaflet + React Leaflet
-•	Firebase Messaging
-•	PWA Support
+• React 19
+• TypeScript
+• Vite
+• Zustand
+• React Router v7
+• Axios
+• SignalR Client
+• TailwindCSS
+• Shadcn/UI
+• React Hook Form
+• Zod
+• Google Maps JavaScript API
+• Firebase Messaging
+• PWA Support
+
 Backend already exists and must not be modified.
+
+IMPORTANT IMPLEMENTATION RULES
+
+- The backend is the single source of truth.
+- Follow backend-spec.md and cearcs-api.json exactly.
+- Do not invent endpoints.
+- Do not invent DTOs.
+- Do not invent SignalR events.
+- Do not invent roles.
+- Do not modify backend contracts.
+- Extend the existing frontend instead of regenerating it.
+- Reuse existing services, stores, routes, and components whenever possible.
+- Every generated feature must compile successfully before moving to the next implementation phase.
 ________________________________________
 PHASE 1 — PROJECT STRUCTURE
 Create a scalable enterprise structure.
@@ -67,45 +81,124 @@ DeviceTokenApi
 DashboardApi
 Use TypeScript interfaces.
 ________________________________________
+
+
 PHASE 3 — AUTHENTICATION
-Create authentication flow.
-Student Login
-Student Register
-Admin Login
+
+Create a unified authentication flow.
+
+There must be ONE Login page for the entire application.
+
+The backend authentication contracts must be followed exactly.
+
+Student Authentication
+
+Endpoint:
+POST /api/auth/login
+
+Credentials:
+- Matric Number
+- Password
+
+Admin / Faculty / FireKiosk / ClinicKiosk Authentication
+
+Endpoint:
+POST /api/auth/admin/login
+
+Credentials:
+- Username
+- Password
+
+The Login page must provide a role selector:
+
+• Student
+• Admin / Faculty / Kiosk
+
+The selected login type determines which backend endpoint is called.
+
+Student Registration
+
+Endpoint:
+POST /api/auth/register
+
 Store JWT in Zustand.
+
 Persist login state.
+
 Create:
+
 AuthStore
+
 Capabilities:
+
 loginStudent()
 registerStudent()
 loginAdmin()
 logout()
 restoreSession()
+
+After successful authentication:
+
+Student → /student
+
+Admin → /admin
+
+Faculty → /kiosk/faculty
+
+FireKiosk → /kiosk/fire
+
+ClinicKiosk → /kiosk/clinic
+
+Dedicated kiosk deployments must not require a login screen.
+
+When deployed as a kiosk device, the application should open directly into kiosk mode.
+
 Create route protection.
+
 Roles:
+
 Student
 Admin
 Faculty
-Kiosk
 FireKiosk
 ClinicKiosk
 ________________________________________
+
 PHASE 4 — ROUTING
+
 Public Routes
+
 /login
 /register
+
 Protected Routes
+
 /student
 /admin
-/kiosk
-Role Guards:
-Students -> Student Dashboard
-Admins -> Admin Dashboard
-Faculty -> Faculty Kiosk
-FireKiosk -> Fire Kiosk
-ClinicKiosk -> Clinic Kiosk
-Unauthorized users redirected.
+
+Kiosk Routes (No Authentication)
+
+ /kiosk/faculty
+
+ /kiosk/fire
+
+ /kiosk/clinic
+
+Role Guards
+
+Student → Student Dashboard
+
+Admin → Admin Dashboard
+
+Faculty → Faculty Kiosk
+
+FireKiosk → Fire Kiosk
+
+ClinicKiosk → Clinic Kiosk
+
+Unauthorized users must be redirected appropriately.
+
+Kiosk deployments bypass authentication and open directly into their assigned kiosk route.
 ________________________________________
 PHASE 5 — SIGNALR
 Create SignalR service.
@@ -199,16 +292,31 @@ Broadcast
 Resolve
 Close
 ________________________________________
+
 PHASE 9 — MAP SYSTEM
-Use Leaflet.
-Display alert markers.
-Marker color:
+
+Use Google Maps JavaScript API.
+
+Display live emergency markers.
+
+Marker Colors:
+
 Fire = Red
+
 Medical = Blue
+
 Security = Orange
-Click marker:
-Open alert details.
-Map updates live from SignalR.
+
+Clicking a marker must display:
+
+- Alert Details
+- Student Information
+- Coordinates
+- Google Maps Directions
+
+Maps must update in real time using SignalR.
+
+Support marker clustering when multiple incidents occur nearby.
 ________________________________________
 PHASE 10 — MATRIC UPLOAD
 Admin upload page.
@@ -218,51 +326,110 @@ Rows Imported
 Rows Skipped
 Errors
 History table.
+
 ________________________________________
+
 PHASE 11 — KIOSK DASHBOARDS
+
+Dedicated kiosk deployments do not require authentication.
+
+Each kiosk launches directly into its assigned dashboard.
+
+Routes:
+
+/kiosk/faculty
+
+/kiosk/fire
+
+/kiosk/clinic
+
 All kiosks use the same codebase.
-Role determines behavior.
+
+The assigned kiosk type determines the behavior.
+
 ________________________________________
+
 Faculty Kiosk
+
 Fire:
-Full red screen
+
+Full red evacuation screen
+
 Large text:
+
 FIRE EVACUATION IN PROGRESS
-Play siren.
+
+Play evacuation siren.
+
 Security:
-Flashing visual lockdown screen.
+
+Display flashing lockdown screen.
+
 No siren.
+
 Medical:
+
 Remain idle.
+
 ________________________________________
+
 Fire Kiosk
+
 Fire:
-Show emergency details.
-Show map.
+
+Display emergency details.
+
+Display Google Map.
+
 Play siren.
+
 Security:
+
 Ignore.
+
 Medical:
+
 Ignore.
+
 ________________________________________
+
 Clinic Kiosk
+
 Medical:
-Display location.
+
+Display emergency details.
+
+Display Google Map.
+
 Play medical chime.
-Show map.
+
 Fire:
+
 Ignore.
+
 Security:
+
 Ignore.
+
 ________________________________________
+
 Kiosk Requirements
+
+No login screen.
+
 No menus.
+
 No navigation.
+
 No forms.
+
 Full-screen experience.
+
 Large readable typography.
-Automatic live updates.
+
+Automatic live updates via SignalR.
 ________________________________________
+
 PHASE 12 — NOTIFICATIONS
 Integrate Firebase Messaging.
 Request permission.

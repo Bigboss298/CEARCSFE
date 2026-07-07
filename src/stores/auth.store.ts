@@ -38,6 +38,7 @@ interface AuthActions {
   loginAdmin: (credentials: AdminLoginRequest) => Promise<string>
   logout: () => Promise<void>
   restoreSession: () => Promise<void>
+  fetchMe: () => Promise<void>
   clearError: () => void
   setHydrated: () => void
 }
@@ -90,6 +91,9 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
     }
 
     applyAuthState(set, persisted)
+    if (persisted.role === 'Student') {
+      await get().fetchMe()
+    }
     set({ isHydrated: true })
 
     try {
@@ -100,6 +104,32 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
 
     if (persisted.role === 'Student') {
       void useNotificationStore.getState().registerDeviceTokenIfNeeded()
+      void useNotificationStore.getState().fetchDeviceInfo()
+    }
+  },
+
+  fetchMe: async () => {
+    const { token, role } = get()
+    if (!token || role !== 'Student') return
+    try {
+      const { data } = await AuthApi.getMe()
+      if (data) {
+        const current = get().user
+        if (current?.kind === 'student') {
+          const updatedUser: AuthUser = {
+            kind: 'student',
+            profile: data,
+          }
+          set({ user: updatedUser })
+          const persisted = readPersistedAuth()
+          if (persisted && persisted.user.kind === 'student') {
+            persisted.user = updatedUser
+            writePersistedAuth(persisted)
+          }
+        }
+      }
+    } catch {
+      // Ignore errors so network issues do not clear session
     }
   },
 
@@ -112,6 +142,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
         profile: {
           fullName: data.fullName,
           matricNumber: data.matricNumber,
+          email: '',
         },
       }
 
@@ -124,10 +155,12 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
 
       persistAuth(persisted)
       applyAuthState(set, persisted)
+      await get().fetchMe()
       set({ isLoading: false })
 
       await alertHubService.connect(data.token)
       void useNotificationStore.getState().registerDeviceTokenIfNeeded()
+      void useNotificationStore.getState().fetchDeviceInfo()
 
       return getRoleHomePath('Student')
     } catch (error) {

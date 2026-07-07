@@ -7,8 +7,23 @@ function getContext(): AudioContext {
   return audioContext
 }
 
+export async function initializeAudioContext(): Promise<boolean> {
+  try {
+    const ctx = getContext()
+    if (ctx.state === 'suspended') {
+      await ctx.resume()
+    }
+    return ctx.state === 'running'
+  } catch {
+    return false
+  }
+}
+
 function playTone(frequency: number, durationMs: number, volume = 0.2) {
   const ctx = getContext()
+  if (ctx.state === 'suspended') {
+    void ctx.resume()
+  }
   const oscillator = ctx.createOscillator()
   const gain = ctx.createGain()
   oscillator.type = 'sine'

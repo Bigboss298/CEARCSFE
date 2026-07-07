@@ -2,9 +2,14 @@ import type { AlertDetailsResponse, AlertResponse } from '@/types'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { SingleAlertMap } from '@/features/alerts/components/AlertMap'
-import { formatDateTime, getAlertStatusVariant } from '@/utils/alert-theme'
+import {
+  formatDateTime,
+  getAlertStatusLabel,
+  getAlertStatusVariant,
+  getAlertTypeLabel,
+} from '@/utils/alert-theme'
 import { buildGoogleMapsUrl } from '@/utils/maps'
 import { AlertStatus } from '@/types/enums/alert-status'
 import {
@@ -52,118 +57,127 @@ export function AlertDetailSheet({ alert, open, onOpenChange, reporters }: Alert
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>Emergency Alert Details</SheetTitle>
-        </SheetHeader>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="text-left">
+          <DialogTitle className="text-2xl font-bold">Emergency Alert Details</DialogTitle>
+        </DialogHeader>
 
-        <div className="mt-6 space-y-4">
-          <div className="flex flex-wrap gap-2">
-            <Badge variant={getAlertStatusVariant(alert.alertStatus)}>{alert.alertStatus}</Badge>
-            <Badge
-              variant={
-                alert.alertType === 'Fire'
-                  ? 'fire'
-                  : alert.alertType === 'Medical'
-                    ? 'medical'
-                    : 'security'
-              }
-            >
-              {alert.alertType}
-            </Badge>
-          </div>
-
-          <div className="space-y-1 text-sm">
-            <p>
-              <span className="font-medium">Reporter:</span> {alert.studentFullName}
-            </p>
-            <p>
-              <span className="font-medium">Confidence:</span> {alert.confidenceScore.toFixed(1)}
-            </p>
-            <p>
-              <span className="font-medium">Created:</span> {formatDateTime(alert.createdAt)}
-            </p>
-            <p>
-              <span className="font-medium">Last reported:</span> {formatDateTime(alert.lastReportedAt)}
-            </p>
-            <p>
-              <span className="font-medium">Coordinates:</span> {alert.latitude.toFixed(6)},{' '}
-              {alert.longitude.toFixed(6)}
-            </p>
-            <a
-              className="text-blue-600 underline"
-              href={buildGoogleMapsUrl(alert.latitude, alert.longitude)}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Open in Google Maps
-            </a>
-          </div>
-
+        <div className="space-y-6 mt-2">
+          {/* ── Cohesive map section ── */}
           <SingleAlertMap
             latitude={alert.latitude}
             longitude={alert.longitude}
             alertType={alert.alertType}
-            height="220px"
+            height="260px"
+            className="w-full"
           />
 
-          {reporters && reporters.length > 0 && (
-            <>
-              <Separator />
-              <div>
-                <h3 className="mb-2 font-medium">Reporters ({reporters.length})</h3>
-                <ul className="space-y-2 text-sm">
-                  {reporters.map((reporter) => (
-                    <li key={reporter.studentId} className="rounded-md border p-2">
-                      <p className="font-medium">{reporter.studentFullName}</p>
-                      <p className="text-muted-foreground">{formatDateTime(reporter.reportedAt)}</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </>
-          )}
+          {/* ── Alert information section ── */}
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              <Badge variant={getAlertStatusVariant(alert.alertStatus)}>{getAlertStatusLabel(alert.alertStatus)}</Badge>
+              <Badge
+                variant={
+                  getAlertTypeLabel(alert.alertType) === 'Fire'
+                    ? 'fire'
+                    : getAlertTypeLabel(alert.alertType) === 'Medical'
+                      ? 'medical'
+                      : 'security'
+                }
+              >
+                {getAlertTypeLabel(alert.alertType)}
+              </Badge>
+            </div>
 
-          <Separator />
+            <div className="space-y-1 text-sm">
+              <p>
+                <span className="font-medium">Reporter:</span> {alert.studentFullName}
+              </p>
+              <p>
+                <span className="font-medium">Confidence:</span> {alert.confidenceScore.toFixed(1)}
+              </p>
+              <p>
+                <span className="font-medium">Created:</span> {formatDateTime(alert.createdAt)}
+              </p>
+              <p>
+                <span className="font-medium">Last reported:</span> {formatDateTime(alert.lastReportedAt)}
+              </p>
+              <p>
+                <span className="font-medium">Coordinates:</span> {alert.latitude.toFixed(6)},{' '}
+                {alert.longitude.toFixed(6)}
+              </p>
+              <a
+                className="text-blue-600 underline font-medium inline-block mt-1"
+                href={buildGoogleMapsUrl(alert.latitude, alert.longitude)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Open in Google Maps
+              </a>
+            </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              disabled={!canAcknowledge || acknowledge.isPending}
-              onClick={() => runAction(() => acknowledge.mutateAsync(alert.id))}
-            >
-              Acknowledge
-            </Button>
-            <Button
-              variant="destructive"
-              disabled={!canBroadcast || broadcast.isPending}
-              onClick={() =>
-                runAction(() =>
-                  broadcast.mutateAsync({ alertId: alert.id, alertType: alert.alertType }),
-                )
-              }
-            >
-              Broadcast
-            </Button>
-            <Button
-              variant="secondary"
-              disabled={!canResolve || resolve.isPending}
-              onClick={() => runAction(() => resolve.mutateAsync(alert.id))}
-            >
-              Resolve
-            </Button>
-            <Button
-              variant="outline"
-              disabled={!canClose || close.isPending}
-              onClick={() => runAction(() => close.mutateAsync(alert.id))}
-            >
-              Close
-            </Button>
+            {reporters && reporters.length > 0 && (
+              <>
+                <Separator />
+                <div>
+                  <h3 className="mb-2 font-medium">Reporters ({reporters.length})</h3>
+                  <ul className="grid gap-2 sm:grid-cols-2">
+                    {reporters.map((reporter) => (
+                      <li key={reporter.studentId} className="rounded-md border p-2">
+                        <p className="font-medium">{reporter.studentFullName}</p>
+                        <p className="text-muted-foreground">{formatDateTime(reporter.reportedAt)}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </>
+            )}
+
+            <Separator />
+
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              <Button
+                disabled={!canAcknowledge || acknowledge.isPending}
+                onClick={() => runAction(() => acknowledge.mutateAsync(alert.id))}
+                className="w-full"
+              >
+                Acknowledge
+              </Button>
+              <Button
+                variant="destructive"
+                disabled={!canBroadcast || broadcast.isPending}
+                onClick={() =>
+                  runAction(() =>
+                    broadcast.mutateAsync({ alertId: alert.id, alertType: alert.alertType }),
+                  )
+                }
+                className="w-full"
+              >
+                Broadcast
+              </Button>
+              <Button
+                variant="secondary"
+                disabled={!canResolve || resolve.isPending}
+                onClick={() => runAction(() => resolve.mutateAsync(alert.id))}
+                className="w-full"
+              >
+                Resolve
+              </Button>
+              <Button
+                variant="outline"
+                disabled={!canClose || close.isPending}
+                onClick={() => runAction(() => close.mutateAsync(alert.id))}
+                className="w-full"
+              >
+                Close
+              </Button>
+            </div>
+
+            {actionError && <p className="text-sm text-destructive">{actionError}</p>}
           </div>
-
-          {actionError && <p className="text-sm text-destructive">{actionError}</p>}
         </div>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   )
 }

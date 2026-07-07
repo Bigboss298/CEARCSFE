@@ -5,6 +5,7 @@ import { PublicLayout } from '@/layouts/PublicLayout'
 import { StudentLayout } from '@/layouts/StudentLayout'
 import { LoginPage } from '@/pages/public/LoginPage'
 import { RegisterPage } from '@/pages/public/RegisterPage'
+import { AdministratorLoginPage } from '@/pages/public/AdministratorLoginPage'
 import { NotFoundPage } from '@/pages/errors/NotFoundPage'
 import { UnauthorizedPage } from '@/pages/errors/UnauthorizedPage'
 import { AdminDashboardPage } from '@/features/admin/pages/AdminDashboardPage'
@@ -39,7 +40,11 @@ export const router = createBrowserRouter([
       },
       {
         path: paths.adminLogin,
-        element: <Navigate to={paths.login} replace />,
+        element: (
+          <GuestRoute>
+            <AdministratorLoginPage />
+          </GuestRoute>
+        ),
       },
       {
         path: paths.register,
@@ -84,7 +89,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: paths.kiosk.root,
+    path: paths.faculty,
     element: (
       <ProtectedRoute>
         <RoleRoute
@@ -100,6 +105,62 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [{ index: true, element: <KioskDashboardPage /> }],
+  },
+  {
+    path: paths.fireKiosk,
+    element: (
+      <ProtectedRoute>
+        <RoleRoute
+          allowedRoles={[
+            UserRole.Faculty,
+            UserRole.Kiosk,
+            UserRole.FireKiosk,
+            UserRole.ClinicKiosk,
+          ]}
+        >
+          <KioskLayout />
+        </RoleRoute>
+      </ProtectedRoute>
+    ),
+    children: [{ index: true, element: <KioskDashboardPage /> }],
+  },
+  {
+    path: paths.clinicKiosk,
+    element: (
+      <ProtectedRoute>
+        <RoleRoute
+          allowedRoles={[
+            UserRole.Faculty,
+            UserRole.Kiosk,
+            UserRole.FireKiosk,
+            UserRole.ClinicKiosk,
+          ]}
+        >
+          <KioskLayout />
+        </RoleRoute>
+      </ProtectedRoute>
+    ),
+    children: [{ index: true, element: <KioskDashboardPage /> }],
+  },
+  {
+    path: paths.kiosk.root,
+    element: <Navigate to={paths.faculty} replace />,
+  },
+  {
+    path: paths.kiosk.faculty,
+    element: <Navigate to={paths.faculty} replace />,
+  },
+  {
+    path: paths.kiosk.fire,
+    element: <Navigate to={paths.fireKiosk} replace />,
+  },
+  {
+    path: paths.kiosk.clinic,
+    element: <Navigate to={paths.clinicKiosk} replace />,
+  },
+  {
+    path: paths.kiosk.standby,
+    element: <Navigate to={paths.faculty} replace />,
   },
   {
     path: paths.unauthorized,

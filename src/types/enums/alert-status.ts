@@ -1,18 +1,15 @@
-export const AlertStatus = {
-  Pending: 'Pending',
-  Acknowledged: 'Acknowledged',
-  Broadcasted: 'Broadcasted',
-  AutoEscalated: 'AutoEscalated',
-  Resolved: 'Resolved',
-  Closed: 'Closed',
-} as const
+export enum AlertStatus {
+  Pending = 0,
+  Acknowledged = 1,
+  Broadcasted = 2,
+  AutoEscalated = 3,
+  Resolved = 4,
+  Closed = 5,
+}
 
-export type AlertStatus = (typeof AlertStatus)[keyof typeof AlertStatus]
-
-export function parseAlertStatus(value: string): AlertStatus | null {
-  return Object.values(AlertStatus).includes(value as AlertStatus)
-    ? (value as AlertStatus)
-    : null
+export function parseAlertStatus(value: string | number): AlertStatus | null {
+  const parsed = typeof value === 'string' ? Number(value) : value
+  return Number.isInteger(parsed) && parsed in AlertStatus ? (parsed as AlertStatus) : null
 }
 
 export function isTerminalAlertStatus(status: AlertStatus): boolean {

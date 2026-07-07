@@ -1,5 +1,5 @@
 import { ALERT_LONG_PRESS_MS } from '@/lib/constants'
-import type { AlertType } from '@/types/enums/alert-type'
+import { AlertType } from '@/types/enums/alert-type'
 import { cn } from '@/lib/utils'
 import { useLongPress } from '@/hooks/useGeolocation'
 
@@ -12,9 +12,9 @@ interface EmergencyButtonProps {
 }
 
 const typeStyles: Record<AlertType, string> = {
-  Fire: 'bg-fire hover:bg-fire/90 text-white',
-  Medical: 'bg-medical hover:bg-medical/90 text-white',
-  Security: 'bg-security hover:bg-security/90 text-white',
+  [AlertType.Fire]: 'bg-fire hover:bg-fire/90 text-white',
+  [AlertType.Medical]: 'bg-medical hover:bg-medical/90 text-white',
+  [AlertType.Security]: 'bg-security hover:bg-security/90 text-white',
 }
 
 export function EmergencyButton({

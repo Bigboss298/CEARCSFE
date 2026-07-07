@@ -4,6 +4,7 @@ import { AlertCard } from '@/features/alerts/components/AlertCard'
 import { AlertDetailSheet } from '@/features/alerts/components/AlertDetailSheet'
 import type { AlertResponse } from '@/types'
 import { AlertStatus } from '@/types/enums/alert-status'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function AlertHistoryPage() {
   const { data: alerts = [], isLoading, error } = useAlertsQuery()
@@ -25,19 +26,26 @@ export function AlertHistoryPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Alert History</h2>
-        <p className="text-sm text-muted-foreground">Resolved and closed incidents</p>
+        <h2 className="text-3xl font-semibold tracking-tight">Alert History</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Resolved and closed incidents.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {historyAlerts.map((alert) => (
-          <AlertCard key={alert.id} alert={alert} onSelect={setSelectedAlert} />
-        ))}
-      </div>
-
-      {historyAlerts.length === 0 && (
-        <p className="text-sm text-muted-foreground">No historical alerts yet.</p>
-      )}
+      <Card>
+        <CardHeader>
+          <CardTitle>Historical Feed</CardTitle>
+          <CardDescription>Recent incident history with detail drill-down.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {historyAlerts.map((alert) => (
+              <AlertCard key={alert.id} alert={alert} onSelect={setSelectedAlert} />
+            ))}
+          </div>
+          {historyAlerts.length === 0 && (
+            <p className="py-8 text-sm text-muted-foreground">No historical alerts yet.</p>
+          )}
+        </CardContent>
+      </Card>
 
       <AlertDetailSheet
         alert={alertDetail ?? selectedAlert}
