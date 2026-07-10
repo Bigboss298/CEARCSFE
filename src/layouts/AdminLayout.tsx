@@ -6,7 +6,7 @@ import {
   Radar,
   History,
   UploadCloud,
-  Settings2,
+  // Settings2,
 } from 'lucide-react'
 
 const navItems: readonly AppNavItem[] = [
@@ -14,7 +14,7 @@ const navItems: readonly AppNavItem[] = [
   { to: paths.admin.alerts, label: 'Live Alerts', icon: Radar },
   { to: paths.admin.history, label: 'Alert History', icon: History },
   { to: paths.admin.matric, label: 'Matric Records', icon: UploadCloud },
-  { to: paths.admin.settings, label: 'Settings', icon: Settings2 },
+  // { to: paths.admin.settings, label: 'Settings', icon: Settings2 },
 ]
 
 export function AdminLayout() {

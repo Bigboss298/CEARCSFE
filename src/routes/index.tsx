@@ -12,7 +12,6 @@ import { AdminDashboardPage } from '@/features/admin/pages/AdminDashboardPage'
 import { LiveAlertsPage } from '@/features/admin/pages/LiveAlertsPage'
 import { AlertHistoryPage } from '@/features/admin/pages/AlertHistoryPage'
 import { MatricUploadPage } from '@/features/admin/pages/MatricUploadPage'
-import { AdminSettingsPage } from '@/features/admin/pages/AdminSettingsPage'
 import { StudentDashboardPage } from '@/features/student/pages/StudentDashboardPage'
 import { StudentProfilePage } from '@/features/student/pages/StudentProfilePage'
 import { StudentSettingsPage } from '@/features/student/pages/StudentSettingsPage'
@@ -85,7 +84,6 @@ export const router = createBrowserRouter([
       { path: 'alerts', element: <LiveAlertsPage /> },
       { path: 'history', element: <AlertHistoryPage /> },
       { path: 'matric', element: <MatricUploadPage /> },
-      { path: 'settings', element: <AdminSettingsPage /> },
     ],
   },
   {

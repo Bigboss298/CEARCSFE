@@ -40,6 +40,10 @@ export function StudentDashboardPage() {
   const clearEmergency = useStudentStore((s) => s.clearEmergency)
   const [showToast, setShowToast] = useState(false)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [submissionNotice, setSubmissionNotice] = useState<{
+    type: 'success' | 'error'
+    message: string
+  } | null>(null)
 
   useEffect(() => {
     if (activeEmergency) {
@@ -54,6 +58,16 @@ export function StudentDashboardPage() {
     }
   }, [activeEmergency])
 
+  useEffect(() => {
+    if (!submissionNotice) return
+
+    const timer = setTimeout(() => {
+      setSubmissionNotice(null)
+    }, 5000)
+
+    return () => clearTimeout(timer)
+  }, [submissionNotice])
+
   const submitAlert = useCallback(
     async (alertType: AlertType) => {
       setSubmissionState('locating')
@@ -64,8 +78,11 @@ export function StudentDashboardPage() {
         const { data } = await AlertApi.create({ alertType, latitude: currentLocation.latitude, longitude: currentLocation.longitude })
         setLastSubmittedAlert(data)
         setSubmissionState('success')
+        setSubmissionNotice({ type: 'success', message: 'Alert sent successfully.' })
       } catch (error) {
-        setSubmissionState('error', unwrapApiError(error))
+        const message = unwrapApiError(error)
+        setSubmissionState('error', message)
+        setSubmissionNotice({ type: 'error', message })
       }
     },
     [requestLocation, setLastSubmittedAlert, setSubmissionState],
@@ -146,6 +163,46 @@ export function StudentDashboardPage() {
                 Dismiss
               </Button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {submissionNotice && (
+        <div className="fixed bottom-6 left-1/2 z-50 w-[calc(100%-1.5rem)] max-w-sm -translate-x-1/2 animate-in fade-in slide-in-from-bottom-5 duration-300 sm:left-auto sm:right-6 sm:translate-x-0">
+          <div
+            className={
+              submissionNotice.type === 'success'
+                ? 'rounded-lg border border-emerald-200 bg-emerald-50/95 p-4 shadow-lg backdrop-blur-md dark:border-emerald-900 dark:bg-emerald-950/95'
+                : 'rounded-lg border border-destructive/40 bg-background/95 p-4 shadow-lg backdrop-blur-md dark:bg-zinc-900/95'
+            }
+          >
+            <div className="flex items-start justify-between gap-3">
+              <h4
+                className={
+                  submissionNotice.type === 'success'
+                    ? 'text-sm font-semibold uppercase text-emerald-700 dark:text-emerald-200'
+                    : 'text-sm font-semibold uppercase text-destructive'
+                }
+              >
+                {submissionNotice.type === 'success' ? 'Success' : 'Error'}
+              </h4>
+              <button
+                type="button"
+                onClick={() => setSubmissionNotice(null)}
+                className="text-xs font-medium text-muted-foreground hover:text-foreground"
+              >
+                ✕
+              </button>
+            </div>
+            <p
+              className={
+                submissionNotice.type === 'success'
+                  ? 'mt-1 text-xs text-emerald-700 dark:text-emerald-200'
+                  : 'mt-1 text-xs text-muted-foreground'
+              }
+            >
+              {submissionNotice.message}
+            </p>
           </div>
         </div>
       )}
@@ -268,18 +325,7 @@ export function StudentDashboardPage() {
               </div>
             )}
 
-            {submissionState === 'success' && (
-              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
-                <Send className="h-4 w-4" />
-                Alert sent successfully.
-              </div>
-            )}
-
-            {(submissionError || geoError) && submissionState === 'error' && (
-              <p className="rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-                {submissionError ?? geoError}
-              </p>
-            )}
+            {/* Submission feedback is shown as a popup notification. */}
           </CardContent>
         </Card>
 

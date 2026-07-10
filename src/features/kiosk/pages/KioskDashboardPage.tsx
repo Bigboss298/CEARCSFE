@@ -46,6 +46,11 @@ export function KioskDashboardPage() {
   const connectionState = useSignalRStore((s) => s.connectionState)
   const [isFullscreen, setIsFullscreen] = useState(false)
 
+  function silenceAlarm() {
+    stopAllAudio()
+    setAudioPlaying(false)
+  }
+
   useEffect(() => {
     useKioskStore.getState().restoreEmergency(role)
   }, [role])
@@ -68,7 +73,7 @@ export function KioskDashboardPage() {
   }, [])
 
   useEffect(() => {
-    if (!activeEmergency || !audioPlaying) {
+    if (!activeEmergency || !audioPlaying || !audioUnlocked) {
       stopAllAudio()
       return
     }
@@ -81,7 +86,7 @@ export function KioskDashboardPage() {
     }
 
     return () => stopAllAudio()
-  }, [activeEmergency, audioPlaying])
+  }, [activeEmergency, audioPlaying, audioUnlocked])
 
   useEffect(() => {
     if (!activeEmergency) return
@@ -177,6 +182,21 @@ export function KioskDashboardPage() {
         <p className="mt-4 text-2xl text-center font-semibold text-red-200">
           Instruction: Follow evacuation routes immediately
         </p>
+        <div className="mt-6 flex justify-center">
+          <Button variant="secondary" onClick={silenceAlarm} className="bg-white/10 text-white hover:bg-white/20">
+            Silence Alarm
+          </Button>
+        </div>
+        {!audioUnlocked && (
+          <div className="mt-3 flex justify-center">
+            <Button
+              onClick={handleInitializeAudio}
+              className="border border-white/20 bg-white/15 text-white hover:bg-white/25"
+            >
+              Enable Alarm Sound
+            </Button>
+          </div>
+        )}
         <KioskDetails emergency={activeEmergency} showMap />
       </div>
     )
@@ -192,6 +212,21 @@ export function KioskDashboardPage() {
         <p className="mt-4 text-2xl text-center font-semibold text-orange-200">
           Instruction: Security emergency — shelter in place and lock all doors
         </p>
+        <div className="mt-6 flex justify-center">
+          <Button variant="secondary" onClick={silenceAlarm} className="bg-white/10 text-white hover:bg-white/20">
+            Silence Alarm
+          </Button>
+        </div>
+        {!audioUnlocked && (
+          <div className="mt-3 flex justify-center">
+            <Button
+              onClick={handleInitializeAudio}
+              className="border border-white/20 bg-white/15 text-white hover:bg-white/25"
+            >
+              Enable Alarm Sound
+            </Button>
+          </div>
+        )}
         <KioskDetails emergency={activeEmergency} showMap />
       </div>
     )
@@ -205,6 +240,21 @@ export function KioskDashboardPage() {
         <p className="mt-4 text-2xl text-center font-semibold text-red-200">
           Instruction: Dispatch emergency firefighting units immediately
         </p>
+        <div className="mt-6 flex justify-center">
+          <Button variant="secondary" onClick={silenceAlarm} className="bg-white/10 text-white hover:bg-white/20">
+            Silence Alarm
+          </Button>
+        </div>
+        {!audioUnlocked && (
+          <div className="mt-3 flex justify-center">
+            <Button
+              onClick={handleInitializeAudio}
+              className="border border-white/20 bg-white/15 text-white hover:bg-white/25"
+            >
+              Enable Alarm Sound
+            </Button>
+          </div>
+        )}
         <KioskDetails emergency={activeEmergency} showMap />
       </div>
     )
@@ -218,6 +268,21 @@ export function KioskDashboardPage() {
         <p className="mt-4 text-2xl text-center font-semibold text-blue-200">
           Instruction: Dispatch medical emergency response personnel immediately
         </p>
+        <div className="mt-6 flex justify-center">
+          <Button variant="secondary" onClick={silenceAlarm} className="bg-white/10 text-white hover:bg-white/20">
+            Silence Alarm
+          </Button>
+        </div>
+        {!audioUnlocked && (
+          <div className="mt-3 flex justify-center">
+            <Button
+              onClick={handleInitializeAudio}
+              className="border border-white/20 bg-white/15 text-white hover:bg-white/25"
+            >
+              Enable Alarm Sound
+            </Button>
+          </div>
+        )}
         <KioskDetails emergency={activeEmergency} showMap />
       </div>
     )

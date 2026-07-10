@@ -77,28 +77,44 @@ interface KpiGridProps {
 }
 
 export function KpiGrid({ dashboard }: KpiGridProps) {
+  const todayItems = [
+    { label: 'Fire Today', value: dashboard.fireAlertsToday },
+    { label: 'Medical Today', value: dashboard.medicalAlertsToday },
+    { label: 'Security Today', value: dashboard.securityAlertsToday },
+  ]
+
   const items = [
-    { label: 'Active Alerts', value: dashboard.activeAlerts, accent: 'text-destructive' },
     { label: 'Pending', value: dashboard.pendingAlerts },
     { label: 'Acknowledged', value: dashboard.acknowledgedAlerts },
     { label: 'Broadcasted', value: dashboard.broadcastedAlerts },
     { label: 'Auto Escalated', value: dashboard.autoEscalatedAlerts },
     { label: 'Resolved', value: dashboard.resolvedAlerts },
     { label: 'Closed', value: dashboard.closedAlerts },
-    { label: 'Fire Today', value: dashboard.fireAlertsToday },
-    { label: 'Medical Today', value: dashboard.medicalAlertsToday },
-    { label: 'Security Today', value: dashboard.securityAlertsToday },
     { label: 'Total All Time', value: dashboard.totalAlerts },
   ]
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {items.map((item) => (
-        <div key={item.label} className="rounded-xl border bg-card p-4 shadow-sm">
-          <p className="text-sm text-muted-foreground">{item.label}</p>
-          <p className={`mt-2 text-3xl font-bold ${item.accent ?? ''}`}>{item.value}</p>
+    <div className="space-y-4">
+      <section className="space-y-3 rounded-xl border bg-card/50 p-4">
+        <p className="text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground">Today</p>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {todayItems.map((item) => (
+            <div key={item.label} className="rounded-xl border bg-card p-4 shadow-sm">
+              <p className="text-sm text-muted-foreground">{item.label}</p>
+              <p className="mt-2 text-3xl font-bold">{item.value}</p>
+            </div>
+          ))}
         </div>
-      ))}
+      </section>
+
+      <section className="grid grid-cols-2 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {items.map((item) => (
+          <div key={item.label} className="rounded-xl border bg-card p-4 shadow-sm">
+            <p className="text-sm text-muted-foreground">{item.label}</p>
+            <p className="mt-2 text-3xl font-bold">{item.value}</p>
+          </div>
+        ))}
+      </section>
     </div>
   )
 }

@@ -16,7 +16,7 @@ export const paths = {
     alerts: '/admin/alerts',
     history: '/admin/history',
     matric: '/admin/matric',
-    settings: '/admin/settings',
+    // settings: '/admin/settings',
   },
   kiosk: {
     root: '/kiosk',

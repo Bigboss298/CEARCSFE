@@ -3,13 +3,19 @@ import { HubConnectionState } from '@microsoft/signalr'
 import { useDashboardQuery } from '@/api/hooks'
 import { DashboardCharts, KpiGrid } from '@/features/admin/components/DashboardCharts'
 import { AlertMap } from '@/features/alerts/components/AlertMap'
-import { AlertCard } from '@/features/alerts/components/AlertCard'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { AlertStatus } from '@/types/enums/alert-status'
+import { AlertType } from '@/types/enums/alert-type'
 import { useSignalRStore } from '@/stores'
 import { Activity, MapPinned, Radar } from 'lucide-react'
+import {
+  formatDateTime,
+  getAlertStatusLabel,
+  getAlertStatusVariant,
+  getAlertTypeLabel,
+} from '@/utils/alert-theme'
 
 export function AdminDashboardPage() {
   const { data: dashboard, isLoading, error } = useDashboardQuery()
@@ -34,12 +40,12 @@ export function AdminDashboardPage() {
               Live incident intelligence, recent broadcasts, and campus-wide status.
             </CardDescription>
           </div>
-          <Badge variant={connectionState === HubConnectionState.Connected ? 'success' : 'warning'}>
+          {/* <Badge variant={connectionState === HubConnectionState.Connected ? 'success' : 'warning'}>
             <Radar className="mr-1 h-3 w-3" />
             SignalR {connectionState}
-          </Badge>
+          </Badge> */}
         </CardHeader>
-        <CardContent className="grid gap-4 pt-6 sm:grid-cols-3 xl:grid-cols-4">
+        <CardContent className="grid grid-cols-2 gap-4 pt-6 sm:grid-cols-3 xl:grid-cols-4">
           <SummaryChip label="Active alerts" value={String(dashboard.activeAlerts)} icon={Activity} />
           <SummaryChip label="Live incidents" value={String(liveAlerts.length)} icon={MapPinned} />
           <SummaryChip label="Resolved today" value={String(dashboard.resolvedAlerts)} icon={Activity} />
@@ -68,12 +74,65 @@ export function AdminDashboardPage() {
           <CardTitle>Recent Alerts</CardTitle>
           <CardDescription>Latest incidents pulled from the realtime feed.</CardDescription>
         </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-[420px] pr-4">
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {dashboard.recentAlerts.map((alert) => (
-                <AlertCard key={alert.id} alert={alert} />
-              ))}
+        <CardContent className="overflow-hidden">
+          <ScrollArea className="h-[420px]">
+            <div className="overflow-x-auto rounded-2xl border border-slate-200/70 dark:border-slate-800">
+              <table className="min-w-[720px] w-full table-fixed text-left text-sm sm:min-w-0">
+                <thead className="sticky top-0 z-10 bg-background/95 backdrop-blur">
+                  <tr className="border-b border-slate-200/70 text-[10px] uppercase tracking-[0.12em] text-muted-foreground dark:border-slate-800 sm:text-xs sm:tracking-[0.14em]">
+                    <th className="w-[40%] px-3 py-3 sm:w-[32%] sm:px-4">Student</th>
+                    <th className="w-[20%] px-3 py-3 sm:w-[16%] sm:px-4">Type</th>
+                    <th className="w-[20%] px-3 py-3 sm:w-[16%] sm:px-4">Status</th>
+                    <th className="hidden px-4 py-3 md:table-cell md:w-[18%]">Time</th>
+                    <th className="hidden px-4 py-3 lg:table-cell lg:w-[14%]">Confidence</th>
+                    <th className="hidden px-4 py-3 xl:table-cell xl:w-[10%]">Reporters</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200/70 dark:divide-slate-800">
+                  {dashboard.recentAlerts.map((alert) => {
+                    const typeVariant =
+                      alert.alertType === AlertType.Fire
+                        ? 'fire'
+                        : alert.alertType === AlertType.Medical
+                          ? 'medical'
+                          : 'security'
+
+                    return (
+                      <tr key={alert.id} className="align-top transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-900/50">
+                        <td className="px-3 py-3 sm:px-4">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium text-slate-900 dark:text-white sm:text-base">
+                              {alert.studentFullName}
+                            </p>
+                            <p className="mt-0.5 truncate text-[11px] text-muted-foreground md:hidden">
+                              {formatDateTime(alert.createdAt)}
+                            </p>
+                          </div>
+                        </td>
+                        <td className="px-3 py-3 sm:px-4">
+                          <Badge variant={typeVariant} className="text-[10px] sm:text-xs">
+                            {getAlertTypeLabel(alert.alertType)}
+                          </Badge>
+                        </td>
+                        <td className="px-3 py-3 sm:px-4">
+                          <Badge variant={getAlertStatusVariant(alert.alertStatus)} className="text-[10px] sm:text-xs">
+                            {getAlertStatusLabel(alert.alertStatus)}
+                          </Badge>
+                        </td>
+                        <td className="hidden px-4 py-3 text-sm text-muted-foreground md:table-cell">
+                          {formatDateTime(alert.createdAt)}
+                        </td>
+                        <td className="hidden px-4 py-3 text-sm text-muted-foreground lg:table-cell">
+                          {alert.confidenceScore.toFixed(1)}
+                        </td>
+                        <td className="hidden px-4 py-3 text-sm text-muted-foreground xl:table-cell">
+                          {alert.reporterCount}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
             </div>
           </ScrollArea>
         </CardContent>
@@ -100,13 +159,15 @@ function SummaryChip({
   icon: ComponentType<{ className?: string }>
 }) {
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-950">
-        <Icon className="h-5 w-5" />
+    <div className="flex min-w-0 items-center gap-2 rounded-2xl border border-slate-200/70 bg-white p-3 shadow-sm sm:gap-4 sm:p-4 dark:border-slate-800 dark:bg-slate-950">
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-slate-900 text-white sm:size-12 sm:rounded-2xl dark:bg-slate-100 dark:text-slate-950">
+        <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
       </div>
-      <div>
-        <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">{label}</p>
-        <p className="text-2xl font-semibold text-slate-900 dark:text-white">{value}</p>
+      <div className="min-w-0">
+        <p className="break-words text-[10px] uppercase tracking-[0.08em] text-slate-500 sm:text-xs sm:tracking-[0.14em] dark:text-slate-400">
+          {label}
+        </p>
+        <p className="mt-1 break-words text-lg font-semibold leading-none text-slate-900 sm:text-2xl dark:text-white">{value}</p>
       </div>
     </div>
   )

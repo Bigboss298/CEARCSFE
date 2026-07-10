@@ -6,6 +6,7 @@ export interface RegisterStudentRequest {
   email: string
   phoneNumber: string
   telegramUsername: string | null
+  telegramChatId: number | null
   password: string
 }
 

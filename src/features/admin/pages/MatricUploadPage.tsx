@@ -40,13 +40,13 @@ export function MatricUploadPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-hidden">
       <div>
         <h2 className="text-3xl font-semibold tracking-tight">Matric Records</h2>
         <p className="mt-1 text-sm text-muted-foreground">Upload student whitelist CSV files and review imported records.</p>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+      <div className="grid gap-6 overflow-x-hidden xl:grid-cols-[0.95fr_1.05fr]">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -123,44 +123,60 @@ export function MatricUploadPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="flex flex-col overflow-hidden">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Table2 className="h-5 w-5" />
               Records ({records.length})
             </CardTitle>
           </CardHeader>
-          <CardContent>
+
+          <CardContent className="flex-1 overflow-hidden p-0">
             {isLoading ? (
-              <p className="text-sm text-muted-foreground">Loading records...</p>
+              <p className="p-4 text-sm text-muted-foreground">Loading records...</p>
             ) : (
-              <ScrollArea className="h-[520px] pr-4">
-                <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-background">
-                    <tr className="border-b text-left text-muted-foreground">
-                      <th className="p-3 font-medium">Matric</th>
-                      <th className="p-3 font-medium">Name</th>
-                      <th className="p-3 font-medium">Faculty</th>
-                      <th className="p-3 font-medium">Level</th>
-                      <th className="p-3 font-medium">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {records.map((record) => (
-                      <tr key={record.id} className="border-b last:border-b-0">
-                        <td className="p-3">{record.matricNumber}</td>
-                        <td className="p-3">{record.fullName}</td>
-                        <td className="p-3">{record.faculty}</td>
-                        <td className="p-3">{record.level}</td>
-                        <td className="p-3">
-                          <Badge variant={record.isUsed ? 'secondary' : 'success'}>
-                            {record.isUsed ? 'Used' : 'Available'}
-                          </Badge>
-                        </td>
+              <ScrollArea className="h-[520px] w-full">
+                <div className="min-w-max">
+                  <table className="text-sm">
+                    <thead className="sticky top-0 bg-background">
+                      <tr className="border-b text-left text-muted-foreground">
+                        <th className="whitespace-nowrap p-3 text-xs font-medium">Matric</th>
+                        <th className="whitespace-nowrap p-3 text-xs font-medium">Name</th>
+                        <th className="whitespace-nowrap p-3 text-xs font-medium">Faculty</th>
+                        <th className="whitespace-nowrap p-3 text-xs font-medium">Level</th>
+                        <th className="whitespace-nowrap p-3 text-xs font-medium">Status</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+
+                    <tbody>
+                      {records.map((record) => (
+                        <tr key={record.id} className="border-b last:border-b-0">
+                          <td className="whitespace-nowrap p-3 text-sm">
+                            {record.matricNumber}
+                          </td>
+
+                          <td className="whitespace-nowrap p-3 text-sm">
+                            {record.fullName}
+                          </td>
+
+                          <td className="whitespace-nowrap p-3 text-sm">
+                            {record.faculty}
+                          </td>
+
+                          <td className="whitespace-nowrap p-3 text-sm">
+                            {record.level}
+                          </td>
+
+                          <td className="whitespace-nowrap p-3 text-sm">
+                            <Badge variant={record.isUsed ? 'secondary' : 'success'}>
+                              {record.isUsed ? 'Used' : 'Available'}
+                            </Badge>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </ScrollArea>
             )}
           </CardContent>

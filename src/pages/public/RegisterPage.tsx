@@ -17,6 +17,10 @@ const registerSchema = z.object({
   fullName: z.string().min(1, 'Full name is required').max(150),
   email: z.email('Enter a valid email address').max(200),
   phoneNumber: z.string().min(1, 'Phone number is required').max(20),
+  telegramChatId: z
+    .string()
+    .optional()
+    .refine((value) => !value || /^\d+$/.test(value.trim()), 'Telegram Chat ID must contain digits only'),
   telegramUsername: z.string().max(100).optional(),
   password: z.string().min(8, 'Password must be at least 8 characters'),
 })
@@ -37,6 +41,7 @@ export function RegisterPage() {
       fullName: '',
       email: '',
       phoneNumber: '',
+      telegramChatId: '',
       telegramUsername: '',
       password: '',
     },
@@ -44,8 +49,10 @@ export function RegisterPage() {
 
   const onSubmit = form.handleSubmit(async (values) => {
     clearError()
+    const parsedChatId = values.telegramChatId?.trim()
     const payload = {
       ...values,
+      telegramChatId: parsedChatId ? Number(parsedChatId) : null,
       telegramUsername: values.telegramUsername?.trim() || null,
     }
     await registerStudent(payload)
@@ -78,6 +85,13 @@ export function RegisterPage() {
             <Field name="email" label="Email" type="email" form={form} />
             <Field name="phoneNumber" label="Phone Number" type="tel" form={form} />
             <Field
+              name="telegramChatId"
+              label="Telegram Chat ID"
+              type="text"
+              form={form}
+              placeholder="Optional"
+            />
+            <Field
               name="telegramUsername"
               label="Telegram Username"
               type="text"
@@ -95,7 +109,7 @@ export function RegisterPage() {
             <Separator className="my-3" />
             <ul className="space-y-2">
               <li>Use the exact matric number provided by your institution.</li>
-              <li>Keep your Telegram handle current if you want emergency notifications.</li>
+              <li>Prefer Telegram Chat ID for reliable emergency message delivery.</li>
               <li>You will be redirected to the login page after successful registration.</li>
             </ul>
           </div>
