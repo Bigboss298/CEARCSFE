@@ -1,5 +1,4 @@
 import type { ComponentType } from 'react'
-import { HubConnectionState } from '@microsoft/signalr'
 import { useDashboardQuery } from '@/api/hooks'
 import { DashboardCharts, KpiGrid } from '@/features/admin/components/DashboardCharts'
 import { AlertMap } from '@/features/alerts/components/AlertMap'
@@ -8,8 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { AlertStatus } from '@/types/enums/alert-status'
 import { AlertType } from '@/types/enums/alert-type'
-import { useSignalRStore } from '@/stores'
-import { Activity, MapPinned, Radar } from 'lucide-react'
+import { Activity, MapPinned } from 'lucide-react'
 import {
   formatDateTime,
   getAlertStatusLabel,
@@ -19,7 +17,6 @@ import {
 
 export function AdminDashboardPage() {
   const { data: dashboard, isLoading, error } = useDashboardQuery()
-  const connectionState = useSignalRStore((s) => s.connectionState)
 
   if (isLoading) return <p className="text-sm text-muted-foreground">Loading dashboard...</p>
   if (error || !dashboard) {

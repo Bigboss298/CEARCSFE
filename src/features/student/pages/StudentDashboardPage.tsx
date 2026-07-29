@@ -24,16 +24,15 @@ import {
 } from '@/utils/alert-theme'
 import { buildGoogleMapsUrl } from '@/utils/maps'
 import { HubConnectionState } from '@microsoft/signalr'
-import { MapPinned, Radio, Send } from 'lucide-react'
+import { MapPinned, Radio } from 'lucide-react'
 
 export function StudentDashboardPage() {
-  const { requestLocation, isLoading: isLocating, error: geoError, latitude, longitude, accuracy } =
+  const { requestLocation, isLoading: isLocating, latitude, longitude, accuracy } =
     useGeolocation()
   const connectionState = useSignalRStore((s) => s.connectionState)
   const notificationRegistered = useNotificationStore((s) => s.isRegistered)
   const lastSubmittedAlert = useStudentStore((s) => s.lastSubmittedAlert)
   const submissionState = useStudentStore((s) => s.submissionState)
-  const submissionError = useStudentStore((s) => s.submissionError)
   const activeEmergency = useStudentStore((s) => s.activeEmergency)
   const setSubmissionState = useStudentStore((s) => s.setSubmissionState)
   const setLastSubmittedAlert = useStudentStore((s) => s.setLastSubmittedAlert)
